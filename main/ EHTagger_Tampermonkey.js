@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         EHentai Tagger
-// @namespace    https://github.com/Hnsr0327/EHGroupTagger/
+// @namespace    https://github.com/Hnsr0327/EHGroupTagger
 // @version      0.0.alpha
 // @description  no description now
 // @author       Hanashiro, GPT-4-0314
-// @match        *://exhentai.org/*,*://e-hentai.org/*
+// @match        *://exhentai.org/*
+// @match        *://e-hentai.org/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=exhentai.org
 // @grant        unsafeWindow
 // ==/UserScript==
@@ -58,7 +59,7 @@ if (matches) {
         }
     }
 
-    // 获取输入框元素，修改占位符文本为 "Hanashiro-Extended Tagger"
+    // 获取输入框元素，修改占位符文本为”Hanashiro-Extended Tagger”
     var element = document.getElementById("newtagfield");
     //element.removeAttribute('maxLength');
     //element.maxLength = "200";
