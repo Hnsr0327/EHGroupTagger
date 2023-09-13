@@ -28,9 +28,6 @@ var matches = URL.match(regex);
 if (matches) {
     var galleryUniqueNumbering = matches[1];
     var antiSpiderString = matches[2];
-
-    console.log("Number:", galleryUniqueNumbering);
-    console.log("Last string:", antiSpiderString);
 }
 
 // 打开网页后的自执行函数
@@ -77,15 +74,16 @@ if (matches) {
             doujinshiRomanjiTitle: doujinshiRomanjiTitle.textContent,
             doujinshiKanjiTitle: doujinshiKanjiTitle.textContent,
             tagsToDatabaseSystem: tagsArray,
-            tagsInClickboard: tag
+            tagsInClickboard: tag,
+            messageType: "TagDetails"
         }),
     })
         .then((response) => response.json())
         .then((data) => {
-        console.log("数据已成功发送到本地服务器：", data);
+        console.log("TagDetails Sent SUCCEED", data);
     })
         .catch((error) => {
-        console.error("发送数据到本地服务器出错：", error);
+        console.error("TagDetails Sent FAILED", error);
     });
 
     // 按钮添加点击事件处理程序，确保当用户点击按钮时会获取更多的标签内容并写入剪贴板。

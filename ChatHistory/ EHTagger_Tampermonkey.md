@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS doujinshi_data (
 
 以下是使用SQLite进行操作的示例：
 
-```
+```javascript
 const express = require("express");
 const cors = require("cors");
 const sqlite3 = require("sqlite3").verbose();
@@ -125,7 +125,7 @@ app.listen(port, () => {
 
 然后，根据您的需求，使用以下示例来创建一个简单的Node.js脚本。这个示例脚本将访问给定的URL，并解析其HTML内容以获取所需的数据：
 
-```
+```javascript
 const axios = require('axios');
 const cheerio = require('cheerio');
 
@@ -255,6 +255,7 @@ Exhentai Data Fetcher 用户脚本的作用是从exhentai.org网站获取页面�
 如果您对它们有任何疑问，请随时提问。
 
 用户：就你的观察来说，这几段代码应该是一整套业务逻辑的一部分。 这个项目（业务逻辑）的名字目前是“EHGroupTagger”，它目前的README.md文档是：
+
 ```
 它将会是一套解决方案，最终的目的是实现高度去人工化的 E-Hentai 网站的 tagging 工作，
 
@@ -332,3 +333,149 @@ E-Hentai，又称E站、E绅士、熊猫网，是一个非营利性质的网路�
 4. 在上传新标签到E-Hentai网站时，可以根据用户的投票权力分配策略，来调整自动Upvote的标签，以更好地符合网站的规则和要求。
 
 希望这些建议对EHGroupTagger项目的优化和完善有所帮助。如果您还有其他问题，请随时提问。
+
+用户：让我们重新考虑这个系统。以一个画廊的标题为例：
+
+“[Okumori Boy] Oretoku Shuugakuryokou ~Otoko wa Jyosou shita Ore dake!! Ch. 1-20 [Decensored]“
+
+这个画廊的标题如果是正确的，它的标题是”Oretoku Shuugakuryokou ~Otoko wa Jyosou shita Ore dake!! “，画家或画家的笔名/团队名应为“Okumori Boy”，它应该具有第一至第二十章，同时是去除了审查（比如”裸露器官的马赛克“）。
+如果两个画廊的哪些特征完全相同，它们才能被标注为相同的 Tag ？
+
+助手：当两个画廊具有以下完全相同的特征时，它们可以被标注为相同的Tag：
+
+1. 标题：两个画廊的标题应完全相同，例如 “Oretoku Shuugakuryokou ~Otoko wa Jyosou shita Ore dake!!”。
+2. 作者/团队名称：两个画廊的作者或笔名/团队名应完全相同，例如 “Okumori Boy”。
+3. 章节：两个画廊包含的章节应完全相同，例如第一至第二十章。
+4. 状态：两个画廊的状态应完全相同，例如都是去除了审查（如裸露器官的马赛克）。
+
+如果以上所有特征均完全相同，那么两个画廊可以被认为是同一作品，并可以被标注为相同的Tag。然而，在实际应用中，可能需要根据具体情况对这些特征进行一定程度的容错和适应性处理（例如，标题中可能存在轻微的拼写变化或格式差异），以确保正确识别相同作品的不同画廊。
+
+用户：*（Temperature = 1.2）* 让我们开始想象，像这样的网站，一个同人志画廊通常会存在的属性吧。
+
+助手：对于像E-Hentai这样的同人志画廊网站，通常存在以下几种常见属性：
+
+1. 作者/团队：这是用于标识作品创作者、漫画家或团队的名字。
+2. 标题：同人志作品的主要名称，通常用于反映作品内容或主题。
+3. 类型：描述同人志作品的风格或内容的类型，例如喜剧、悬疑、浪漫、科幻等。
+4. 原作/题材：同人志所基于的原始动画、漫画、游戏或其他作品。
+5. 场景设定：描述同人志故事所发生的环境、世界观或背景。
+6. 角色：故事中出现的角色名字、形象等。
+7. 分类：这可能包括作品中包含的性别设定（如男或女主导）、性向（如百合或耽美），或者被认为是“不雅”的；另外，是否汉化、未汉化，是否经过审查等。
+8. 语言：标识同人志作品的首要语言。
+9. 章节：表示同人志中所包含的章节及其序号。
+10. 更新日期：表示画廊最近的发布/更新日期。
+
+在Browse（浏览）画廊或搜索画廊的过程中，这些属性会有助于用户更容易找到他们感兴趣的作品。而Online TAG System（在线标签系统）正是用于充分展现这些作品属性的关键特征和功能。不同用户根据自己的喜好和需求来点击+或者—as
+
+（⬆️助手的原文输出如此）
+
+用户：我们先不研究两个画廊是否相同了，让我们先看看如何发送tag请求。
+
+*用户发送的第五段文本，是发送 Tag 请求的 Request 的相关数据*
+
+助手：第五段文本提供了发送Tag请求的Request相关数据。以下是关于该请求的详细信息：
+
+请求URL: https://s.exhentai.org/api.php
+请求方法: POST
+请求头（Request Headers）:
+
+```
+• Accept: /
+• Accept-Encoding: gzip, deflate, br
+• Accept-Language: [REDACTED]
+• Connection: keep-alive
+• Content-Length: 151
+• Content-Type: application/json
+• Cookie: [REDACTED]
+• Dnt: 1
+• Host: s.exhentai.org
+• Origin: https://exhentai.org
+• Referer: https://exhentai.org/
+• Sec-Ch-Ua, Sec-Ch-Ua-Mobile, Sec-Ch-Ua-Platform, Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site：与浏览器安全策略、标识等相关的信息。
+• User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36
+```
+
+请求负载（Request Payload）:
+
+*[REDACTED]*
+
+这个请求通过POST方法向E-Hentai API发送一个JSON对象，包含以下字段：
+
+• method: 请求方法，这里为 “taggallery”。
+• apiuid: 用户ID。
+• apikey: 用户的API密钥。
+• gid: 画廊ID。
+• token: 画廊的访问令牌。
+• tags: 要添加或更新的标签，以逗号分隔。
+• vote: 表示为添加的标签投票的类型，1表示Upvote。
+
+发送此请求后，服务器将处理标签更改并返回响应。通过这种方式，用户可以通过API向E-Hentai网站提交新增或更新的标签。
+
+用户：那么，现在，请告诉我如何构建向 E-Hentai 发送 tag 请求。
+
+助手：要向E-Hentai发送tag请求，您需要执行以下步骤：
+
+1. 准备必要的参数：
+* apiuid：您的E-Hentai用户ID。
+* apikey：您的E-Hentai API密钥。
+* gid：要更新的画廊的ID。
+* token：画廊的访问令牌。
+* tags：要添加或更新的标签，以逗号分隔。
+* vote：表示为添加的标签投票的类型，1表示Upvote。
+2. 创建一个HTTP POST请求，将请求指向E-Hentai API的URL（https://s.exhentai.org/api.php）。
+3. 在请求头（Headers）中，设置以下字段：
+* Content-Type: application/json
+4. 在请求体（Body）中，添加一个JSON对象，包含以下字段：
+{
+  "method": "taggallery",
+  "apiuid": apiuid,
+  "apikey": apikey,
+  "gid": gid,
+  "token": token,
+  "tags": tags,
+  "vote": vote
+}
+
+请确保将变量替换为实际值。
+5. 发送POST请求，并处理服务器返回的响应。
+
+以下是使用JavaScript（需要运行在支持Fetch API的环境中）构建并发送tag请求的示例代码：
+
+```javascript
+const apiuid = "your_api_uid";
+const apikey = "your_api_key";
+const gid = "your_gallery_id";
+const token = "your_gallery_token";
+const tags = "your_tags";
+const vote = 1; // Upvote
+
+const apiUrl = "https://s.exhentai.org/api.php";
+
+const requestOptions = {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    method: "taggallery",
+    apiuid: apiuid,
+    apikey: apikey,
+    gid: gid,
+    token: token,
+    tags: tags,
+    vote: vote,
+  }),
+};
+
+fetch(apiUrl, requestOptions)
+  .then((response) => response.json())
+  .then((data) => {
+    console.log("Tag request sent successfully", data);
+  })
+  .catch((error) => {
+    console.error("Error sending tag request", error);
+  });
+```
+
+请注意，您需要将代码中的占位符替换为实际的参数值。执行此代码后，您将向E-Hentai API发送tag请求，并根据服务器返回的响应处理结果。
+
