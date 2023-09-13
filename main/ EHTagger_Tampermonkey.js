@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         EHentai Tagger
-// @namespace    http://tampermonkey.net/
+// @namespace    https://github.com/Hnsr0327/EHGroupTagger/
 // @version      0.0.alpha
 // @description  no description now
-// @author       You
+// @author       Hanashiro, GPT-4-0314
 // @match        *://exhentai.org/*,*://e-hentai.org/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=exhentai.org
 // @grant        unsafeWindow

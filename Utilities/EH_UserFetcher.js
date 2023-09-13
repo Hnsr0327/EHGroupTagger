@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Exhentai Data Fetcher
-// @namespace    http://tampermonkey.net/
+// @namespace    https://github.com/Hnsr0327/EHGroupTagger/
 // @version      0.1.stable
 // @description  Fetch and send necessary data to the local server
-// @author       You
+// @author       Hanashiro, GPT-4-0314
 // @match        *://exhentai.org/*
 // @grant        GM_xmlhttpRequest
 // ==/UserScript==
