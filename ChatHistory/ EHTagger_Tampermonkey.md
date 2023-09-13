@@ -479,3 +479,382 @@ fetch(apiUrl, requestOptions)
 
 请注意，您需要将代码中的占位符替换为实际的参数值。执行此代码后，您将向E-Hentai API发送tag请求，并根据服务器返回的响应处理结果。
 
+## conversation 3rd
+### LLM Model
+GPT-4-0314, Temperature = 0.8
+### system prompt
+仔细阅读“文本”，并且试图和用户就”文本“进行对话，你的第一句话的主旨应该是「阅读完用户提供的”文本“以后，就用户可能的提问进行预先回答。」
+### conversation
+用户：*EHTagger_Tampermonkey.js(0.0.alpha.2)*，*EH_UserFetcher.js(0.2.stable)*，*server.js*
+
+助手：您提供了三段文本，分别为两个用户脚本（UserScript）和一个简单的服务器端脚本。
+
+第一个用户脚本主要用于从 e-hentai.org 和 exhentai.org 上抓取包含高权重标签的图册信息，将标签写入剪贴板并将相关信息以及更多标签发送到本地服务器。当用户点击按钮时，将获取更多的标签内容并写入剪贴板。第二个用户脚本主要用于在同样的网站上获取页面请求凭据，如 userAgent、cookie 和 apikey，并将这些信息发送到本地服务器。
+
+第三个文本是一个简单的服务器端脚本，该脚本创建了一个监听在本地 3000 端口上的服务器，并接受从客户端发来的请求，此时仅打印了接收到的数据。在实际应用场景中，您可能需要在服务器端脚本中添加业务逻辑，以将数据存储到数据库或其他存储系统。 如有任何疑问，请随时提问。
+
+用户：告诉我，如果我需要存储到数据库或者其他存储系统，在server.js里应该如何写，我应该如何设计数据库系统？
+
+助手：为了将接收到的数据存储到数据库或其他存储系统，您需要根据您的需求选择一个合适的数据库。这里，我将以使用 MongoDB 作为数据库的例子来说明。
+
+（此时 Hnsr0327 不想使用 MongoDB 故不采取方案，不提供助手输出的代码）
+
+至于数据库设计，根据您提供的文本，可以创建一个名为 “exhentaiData” 的数据库，其中包含一个名为 “records” 的集合。集合中的文档可以包含以下字段：
+
+* URL: 图册的 URL
+* uniqueNumber: 图册的唯一编号
+* antiSpiderString: 防爬虫字符串
+* doujinshiRomanjiTitle: 罗马字标题
+* doujinshiKanjiTitle: 汉字标题
+* tagsToDatabaseSystem: 标签数组，包含标签类型和内容
+* tagsInClickboard: 写入剪贴板的标签字符串
+* messageType: 消息类型（如 “TagDetails” 或 “WebPageRequestCredentials”）
+
+当然，您可以根据实际需求调整字段和数据结构。这只是一个基本的示例，您还可以使用更高级的功能，如数据验证、索引和聚合，以优化数据库性能和查询速度。
+
+用户：请使用 MySQL 来作为案例。
+
+助手：要使用 MySQL 作为数据库，您需要首先安装 MySQL 以及对应的 Node.js 驱动程序。在您的项目文件夹中运行以下命令：
+
+```npm install mysql```
+
+接下来，在 server.js 文件中引入 MySQL 模块，并连接到数据库：
+
+```javascript
+const mysql = require("mysql");
+const connection = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "your_password",
+  database: "exhentaiData",
+});
+
+connection.connect((err) => {
+  if (err) {
+    console.error("连接数据库失败：", err);
+    return;
+  }
+  console.log("连接到 MySQL 数据库成功");
+});
+```
+
+确保您已经创建了一个名为 “exhentaiData” 的数据库。然后，创建一个名为 “records” 的表，用于存储数据：
+
+```sql
+CREATE TABLE records (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  URL VARCHAR(255) NOT NULL,
+  uniqueNumber VARCHAR(255) NOT NULL,
+  antiSpiderString VARCHAR(255) NOT NULL,
+  doujinshiRomanjiTitle TEXT NOT NULL,
+  doujinshiKanjiTitle TEXT NOT NULL,
+  tagsInClickboard TEXT NOT NULL,
+  messageType VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+接着，在处理 POST 请求时，将数据插入到 “records” 表中：
+
+```javascript
+app.post("/save-data", (req, res) => {
+  console.log("Data received: ", req.body);
+
+  const { URL, uniqueNumber, antiSpiderString, doujinshiRomanjiTitle, doujinshiKanjiTitle, tagsInClickboard, messageType } = req.body;
+
+  const query = "INSERT INTO records (URL, uniqueNumber, antiSpiderString, doujinshiRomanjiTitle, doujinshiKanjiTitle, tagsInClickboard, messageType) VALUES (?, ?, ?, ?, ?, ?, ?)";
+  const values = [URL, uniqueNumber, antiSpiderString, doujinshiRomanjiTitle, doujinshiKanjiTitle, tagsInClickboard, messageType];
+
+  connection.query(query, values, (err, result) => {
+    if (err) {
+      console.error("插入数据失败：", err);
+      res.status(500).send({ status: "failed", error: err });
+    } else {
+      console.log("插入数据成功：", result);
+      res.send({ status: "success" });
+    }
+  });
+});
+```
+
+最后，确保在关闭服务器时关闭数据库连接：
+
+```javascript
+process.on("SIGINT", () => {
+  console.log("关闭数据库连接");
+  connection.end();
+  process.exit();
+});
+```
+
+至于数据库设计，您可以创建一个名为 “exhentaiData” 的数据库，其中包含一个名为 “records” 的表。表中的字段可以包含：
+
+• id: 自增主键
+• URL: 图册的 URL
+• uniqueNumber: 图册的唯一编号
+• antiSpiderString: 防爬虫字符串
+• doujinshiRomanjiTitle: 罗马字标题
+• doujinshiKanjiTitle: 汉字标题
+• tagsInClickboard: 写入剪贴板的标签字符串
+• messageType: 消息类型（如 “TagDetails” 或 “WebPageRequestCredentials”）
+• created_at: 记录创建时间
+
+您可能需要根据实际需求调整字段和数据类型。这只是一个基本的示例，您还可以使用更高级的功能，如数据验证、索引和事务，以优化数据库性能和查询速度。
+
+请注意，由于 MySQL 不支持原生的数组或对象类型，因此在此示例中未包含 “tagsToDatabaseSystem” 字段。如果您需要在 MySQL 中存储此类数据，可以考虑将其序列化为 JSON 字符串，并在查询时反序列化。另外，您还可以创建额外的表来存储标签数据，并使用外键关联到 “records” 表。
+
+用户：一个很小的问题，我想每次使用从 Terminal 手动输入密码的方式进行连接，因为我需要将代码开源上传至 GitHub。
+
+为了避免将密码硬编码在代码中，您可以使用环境变量或从命令行中获取密码。这里，我将展示如何在运行时从命令行中获取密码。
+
+首先，您需要安装 prompt 模块，以便从命令行中获取输入。在项目文件夹中运行以下命令：
+
+```npm install prompt```
+
+接下来，修改 server.js 文件，使用 prompt 模块获取密码：
+
+```javascript
+const mysql = require("mysql");
+const prompt = require("prompt");
+
+prompt.start();
+prompt.get(["password"], (err, result) => {
+  if (err) {
+    console.error("获取密码出错：", err);
+    return;
+  }
+
+  const connection = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: result.password,
+    database: "exhentai_data",
+  });
+
+  connection.connect((err) => {
+    if (err) {
+      console.error("连接数据库失败：", err);
+      return;
+    }
+    console.log("连接到 MySQL 数据库成功");
+  });
+
+  // 将 app.post 和 process.on 部分放在此回调函数内，以确保在连接到数据库后再处理请求
+
+  // ... app.post("/save-data", ...) ...
+
+  // ... process.on("SIGINT", ...) ...
+
+  // 同时，您需要将 app.listen 放在此回调函数内，确保在成功连接数据库后启动服务器
+  app.listen(port, () => {
+    console.log(`Server listening at http://localhost:${port}`);
+  });
+});
+```
+
+现在，当您运行 server.js 时，系统会提示您输入密码。输入正确的密码后，服务器将正常启动并连接到 MySQL 数据库。
+
+这种方法可以确保您的密码不会出现在代码中，从而避免在开源项目中泄露敏感信息。
+
+（后续发生了一次小的迭代，未使用LLM。）
+
+## conversation 4th
+### LLM Model
+GPT-4-0314, Temperature = 0.8
+### system prompt
+仔细阅读“文本”，并且试图和用户就”文本“进行对话，你的第一句话的主旨应该是「阅读完用户提供的”文本“以后，就用户可能的提问进行预先回答。」
+### conversation
+用户：*EHData.txt*，*server.js*，*EH_UserFetcher.js(0.2.stable)*，*EHTagger_Tampermonkey.js(0.0.alpha.4)*
+
+助手：在这些文本中，我们可以看到涉及创建两个数据库表（TagDetails和WebPageRequestCredentials）、一个Node.js服务器应用（主要负责接收和处理前端数据）、以及两个用户脚本（主要负责从网站获取数据并发送给本地服务器）。
+
+这些脚本分别是Exhentai Data Fetcher和EHentai Tagger，它们负责从exhentai.org和e-hentai.org获取特定数据，并将其发送到本地服务器以进行进一步处理。其中，EHentai Tagger还负责提取漫画标签并将其添加到剪贴板，同时还有一个按钮用于获取更多标签。如果您有任何问题，请随时提问。
+
+用户：我自行补全了业务逻辑，请告诉我，如果数据被顺利保存在 MySQL ，我如何在，比如说 DataGrip 查询？
+
+助手：在 DataGrip 中查询 MySQL 数据库，您需要按照以下步骤操作：
+
+1. 首先，确保您已安装并运行 DataGrip。如果没有，请从官网（ https://www.jetbrains.com/datagrip/ ）下载并安装。
+2. 打开 DataGrip，然后点击左上角的 + 按钮，选择 “Data Source”，然后选择 “MySQL” 来创建一个新的 MySQL 数据源。
+3. 在 “General” 标签下配置数据源，填写以下信息：
+* Host: 数据库所在的主机地址，比如 localhost
+* Port: 数据库的端口，MySQL 默认端口为 3306
+* User: 数据库登录用户名，比如 root
+* Password: 数据库登录密码
+* 额外的，您还可以在 “Database” 中填写您想连接的数据库名称（在这个案例中为 ‘exhentaiData’），否则 DataGrip 会自动列出所有可用的数据库。
+4. 点击 “Test Connection” 检查是否能成功连接到数据库。如果出现绿色的勾，说明连接成功；否则，请检查您填写的信息是否有误。
+5. 如果连接成功，点击 “OK” 保存数据源。
+6. 现在在左侧 “Database” 面板中，您应该可以看到已添加的数据源。展开数据源，选择数据库 ‘exhentaiData’，找到您所需要查询的表（TagDetails 或 WebPageRequestCredentials）并右键，选择 “New Query”。
+7. 在弹出的新对话框中，您可以编写 SQL 查询语句，例如使用以下查询从表中获取所有内容：对于 TagDetails 表：
+
+```SELECT * FROM TagDetails;```
+
+对于 WebPageRequestCredentials 表：
+
+```SELECT * FROM WebPageRequestCredentials;```
+
+8. 按 Ctrl + Enter （或 Cmd + Enter，macOS）执行查询，结果将显示在下方的 “Result” 面板。
+
+你现在可以在 DataGrip 中查询 MySQL 数据库中的数据了。请注意，您可以根据需要自由编写 SQL 查询语句来筛选、排序或以指定方式展示查询结果。
+
+用户：我现在已经非常顺利地看到了被存入的数据，我现在打算优化 WebPageRequestCredentials 数据表。
+
+助手：为了优化WebPageRequestCredentials数据表，首先需要了解表中的数据用途和各列的具体作用。根据给定的文本，这个表含有以下列：
+
+• id: 主键，自动递增的整数，用于唯一标识每个记录。
+• URL: 网络地址，用于存储从哪个URL发送来的请求。
+• userAgent: 用户浏览器的 User-Agent 字符串，用于识别不同用户的设备类型、操作系统和浏览器。
+• cookie: 存储发送请求时的cookie信息。
+• apikey: 存储API密钥。
+• messageType: 存储请求类型。
+• created_at: 记录创建时间的时间戳。
+
+要优化这个表，您可以从以下几个方面着手：
+
+1. 索引：根据查询需求，对某些列创建索引可以加快数据检索速度。例如，如果经常按URL、userAgent或messageType筛选数据，可以为这些列添加索引。但要注意，过多的索引会消耗额外存储空间并降低数据插入、更新和删除操作的效率。因此，要权衡索引的优缺点。
+要添加索引，可以使用以下 SQL 语句，请将index_name替换为您选择的索引名称，将column_name替换为需要添加索引的列名称。
+
+```CREATE INDEX index_name ON WebPageRequestCredentials (column_name);```
+
+2. 数据类型：检查每个列的数据类型，确定它们是否为最合适的类型。例如，URL和userAgent字段当前为VARCHAR(255)。如果实际数据的长度远小于255个字符，可以考虑减小该长度以减少存储空间消耗。同样，如果某些字段中的数据长度超过了255个字符，需要相应增加这些字段的最大长度。
+3. 数据完整性和约束: 评估现有的主键、外键和其他约束是否符合实际需求。可以添加或修改约束以确保数据的一致性和完整性。例如，对于不能为 NULL 的列，可以使用 NOT NULL 约束。也可以为特定列设置 UNIQUE 约束以确保数据的唯一性。
+4. 删除不必要的列：如果某些列的数据实际上并未用于任何操作，可以考虑删除这些列以简化表结构并减轻存储负担。
+5. 归档和数据分区: 对于大量数据且查询通常针对特定时间范围内的数据的情况，可以考虑将数据按时间段进行分区。这可以提高某些查询的效率，但可能也会增加管理和操作的复杂性。
+
+以上优化建议供您参考。在进行任何更改之前，请确保备份现有表结构和数据，以免发生意外损失。根据实际需求和场景调整您的表结构，并确保所有相关代码和查询已进行相应修改。
+
+用户：*README.md（更新于2023年9月13日 UTC 15:00）*
+
+用户：告诉我 WebPageRequestCredentials 在这个 Project 中的主要目的，然后告诉我它的优化方向。
+
+助手：在这个项目中，WebPageRequestCredentials 数据表的主要目的是存储每次请求所获取的页面请求信息。具体包括以下字段：
+
+* 页面的URL（URL）
+* 用户浏览器的 User-Agent（userAgent）
+* 页面的 cookie 信息（cookie）
+* API 密钥（apikey）
+* 请求的类型（messageType，例如 “WebPageRequestCredentials”）
+* 请求记录的创建时间（created_at）
+
+该表可能用于分析和跟踪已处理的页面请求，以监控系统的运作情况，识别特定用户或设备的行为、服务可用性、请求密度等。
+
+根据项目需求，这里提供一些可能的优化方向：
+
+1. 列优化：仔细分析并确定每个列的数据类型、长度和约束，以便存储空间和查询效率达到最佳平衡。例如，适当调整 VARCHAR 列的最大长度，或添加 NOT NULL 和 UNIQUE 约束。
+2. 索引：如果需要经常根据某个特定字段查询或筛选数据，为该字段添加索引，以提高查询效率。例如，为 URL、userAgent 或 messageType 列添加索引。
+3. 数据归档和分区：如果表中的数据量很大，并且大部分查询都涉及特定时间段内的数据，可以考虑将数据按时间分区。这种方法可以提高特定查询的效率，但可能会增加管理和操作难度。
+4. 数据清理和维护：制定并执行定期数据清理策略，以剔除过期或不再使用的数据。这可以确保数据库存储空间得到有效利用，同时优化查询性能。
+
+最终的优化方向应根据项目实际需求和数据库使用状况来确定。
+
+用户：我打算通过处理画廊的汉字名和罗马字名分辨它们存在的部分特征，我在下面提供部分画廊的标题，请你告诉我它们的格式和前后缀。
+
+助手：从提供的画廊标题中，我们可以观察到以下格式和前后缀：
+
+1. 画廊标题通常以方括号 [ ] 包含的作者信息和作品名开始；
+2. 作者信息和作品名之后紧跟另一个方括号包含的原文标题；
+3. 原文标题后通常跟着另一个方括号包含的语言信息及可能的翻译团队名，如[Chinese][某某汉化组][Korean][Digital]等。注意，语言信息和翻译团队名之间可能没有固定格式。数字作品可能在语言信息后紧跟[Digital]标记。
+
+这些格式和前后缀可以帮助您分离和识别不同部分的标题信息，例如作者、作品名、原文标题、语言、翻译团队和数字版标识。您可以根据所需的数据特征对标题进行进一步解析和处理。
+
+用户：你会建议我将两个用户脚本合并吗？
+
+助手：在决定是否合并两个用户脚本之前，需要权衡一下合并的优缺点。
+
+优点：
+
+1. 便于维护：将两个脚本合并成一个可以使代码更容易维护和更新，因为您只需要在一个地方进行更改。
+2. 提高一致性：合并脚本可能有助于确保代码风格、变量命名和功能实现之间的一致性。
+3. 简化部署：用户只需安装和管理一个脚本，降低了安装和使用的难度。
+
+缺点：
+
+1. 可能增加复杂性：合并脚本可能会导致功能混合在一起，增加代码的复杂性。每个功能的逻辑可能不那么明显，使得阅读和调试代码更具挑战性。
+2. 耦合性提高：将两个独立的用户脚本合并可能会导致它们之间的相互依赖性增加。如果要在未来更新或添加新功能，较高的耦合性可能会限制灵活性。
+
+综上所述，在考虑合并两个用户脚本之前，需要确定这两个脚本是否具有紧密相关的功能和目标。如果它们旨在协同工作且彼此之间存在依赖关系，那么合并它们可能是一个好主意。否则，保持它们分开可能会有助于提高代码清晰度和可维护性。
+
+在这种情况下，考虑到 EHentai Tagger 和 Exhentai Data Fetcher 都是针对 E-Hentai 网站的自动化标签处理，且目标和功能相近，合并这两个用户脚本可能是一个合理的选项。合并后的脚本可以使维护更便捷，同时便于用户安装和使用。然而，请确保在合并后保持代码逻辑明确，并遵循良好的编程实践和代码结构。
+
+用户：好的，我决定将 Data Fetcher 合并到 Tagger ，同时保留 Data Fetcher 这个比较简易经典的用户脚本，给其它的可能需要开源用户脚本的用户使用，所以请告诉我如何进行。
+
+助手：很好，为了将 Data Fetcher 合并到 Tagger 中，同时保留 Data Fetcher 的基本功能，可以按照以下步骤操作：
+
+1. 打开 EHentai Tagger 用户脚本，在其代码中，找到并删除与 Exhentai Data Fetcher 用户脚本功能重叠的部分。这通常包括导入和使用的库、函数和变量等。通常，这意味着您需要删除和 Data Fetcher 相关的 fetch() 方法。
+2. 将 Exhentai Data Fetcher 用户脚本中的功能代码剪切并粘贴到 EHentai Tagger 用户脚本中，添加在相关位置（例如在已有代码的末尾）。
+3. 删除 Exhentai Data Fetcher 用户脚本中与 EHentai Tagger 功能重叠的部分，以确保这个简易经典版仅包含数据获取功能。
+4. 检查 EHentai Tagger 和 Exhentai Data Fetcher 脚本中的所有代码，确保它们仅包含所需的功能，编写清晰，且不存在冲突。
+5. 测试合并后的 EHentai Tagger 用户脚本，确保所有功能仍然正常运行，没有出现问题和错误。同时，测试简易经典版 Exhentai Data Fetcher 脚本，确保其基本的数据获取功能仍然可用。
+
+完成上述步骤后，您将成功将 Data Fetcher 合并到 Tagger，同时保留了简易经典版的基本功能。这两个脚本现在应该能够独立工作，在 E-Hentai 网站上实现各自的功能，减少重复代码和冲突，并便于维护。
+
+## conversation 5th
+### LLM Model
+GPT-4-0314, Temperature = 0.8
+### system prompt
+仔细阅读“文本”，并且试图和用户就”文本“进行对话，你的第一句话的主旨应该是「阅读完用户提供的”文本“以后，就用户可能的提问进行预先回答。」
+### conversation
+用户：*README.md*，*EHData.txt*，*server.js*，*EHTagger_Tampermonkey.js(0.0.alpha.5)*
+
+助手：EHGroupTagger 是一个用于自动化 E-Hentai 网站标签管理的工具。它帮助提高标签的准确性、完整性，减少人工干预。使用说明如下：
+
+1. 从 E-Hentai 网站获取同人志页面上的高权重标签，将其数据发送到本地服务器，并在数据库中保留。
+2. 用户可以手动获取更多标签，并将其添加到剪贴板。
+
+安装和使用方法：
+
+1. 安装 Node.js 并运行 server.js 以启动本地服务器。
+2. 在支持用户脚本的浏览器扩展（例如 Tampermonkey ）中安装 EHentai Tagger 和 Exhentai Data Fetcher 用户脚本。
+3. 浏览 E-Hentai 网站，用户脚本将自动获取、处理标签数据，并与本地服务器进行交互。
+
+另外，有两个数据库表结构供参考：TagDetails（存储标签信息）和 WebPageRequestCredentials（存储请求凭据）。您可以通过阅读提供的代码（文本1、文本2、文本3）了解更多详细信息。
+
+用户：我们这回来做一个更新改进：我们现在先补充待办业务逻辑(2)的一部分：如果它的页面是完全一样的，那么它的Tagging记录当然就是新的覆盖旧的，也就是说，我需要请你更新 EHentai Tagger ， 如果网站（URL）是同一个，那么它就应该是 update 而不是插入新记录。
+
+助手：为了满足您的要求，我需要对提供的代码进行修改。以下是更新后的 server.js 中的 “/save-data” 路由部分，修改了插入语句，使其在 URL 相同时进行更新，而不是插入新记录：
+
+（一段无法实现功能的JavaScript代码）
+
+这部分代码已在已提供的文本2中的相应位置进行了修改。上述代码利用了 MySQL 的 ON DUPLICATE KEY UPDATE 子句，当 URL 相同且遇到主键冲突时，会更新现有记录的内容，而不是插入新记录。这样，在具有相同 URL 的情况下，先前的标签记录将被更新，而不是插入新行。
+
+用户：我刷新了两下页面，发现它增加了两条记录，它们的 URL 完全一样。
+
+助手：抱歉给您带来了困扰。在 “TagDetails” 表中，问题可能在于 “id” 作为主键。当您刷新页面时，由于 “id” 是自动递增的，因此当 URL 完全相同时，它将产生不同的 “id”，导致插入了新的记录。为了解决这个问题，我们需要将 “URL” 字段设置为主键，以确保在更新数据时正确识别已存在的记录。这样的更改将确保当您刷新页面，具有完全相同的URL时，不会插入新的记录。而是更新现有记录。
+
+用户：接下来我要更新 TagDetails 数据表，让它能反映更新时间。
+
+助手：要添加上一次更新时间的列，请更新 “TagDetails” 表结构，添加一个新列 “updated_at”，并在更新数据时设置其值。以下是如何修改数据库表结构和 server.js 来实现这个功能。
+
+```sql
+USE exhentaidata;
+
+CREATE TABLE TagDetails (
+  URL VARCHAR(255) PRIMARY KEY,
+  UniqueID VARCHAR(255) NOT NULL,
+  AntiSpiderString VARCHAR(255) NOT NULL,
+  RomanjiTitle TEXT NOT NULL,
+  KanjiTitle TEXT NOT NULL,
+  tagsInClickboard TEXT NOT NULL,
+  messageType VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL
+);
+```
+
+```javascript
+const queryTagDetails = `
+  INSERT INTO TagDetails (URL, UniqueID, AntiSpiderString, RomanjiTitle, KanjiTitle, tagsInClickboard, messageType)
+  VALUES (?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE
+  URL = VALUES(URL), UniqueID = VALUES(UniqueID), AntiSpiderString = VALUES(AntiSpiderString), RomanjiTitle = VALUES(RomanjiTitle),
+  KanjiTitle = VALUES(KanjiTitle), tagsInClickboard = VALUES(tagsInClickboard), messageType = VALUES(messageType), updated_at = NOW()`;
+```
+
+现在，每次更新现有标签记录时，“updated_at” 列将存储上次更新的时间。
+
+## conversation 6th
+### LLM Model
+GPT-4-0314, Temperature = 0.8
+### system prompt
+仔细阅读“文本”，并且试图和用户就”文本“进行对话，你的第一句话的主旨应该是「阅读完用户提供的”文本“以后，就用户可能的提问进行预先回答。」
+### conversation
+用户：*README.md*，*EHData.txt*，*server.js*，*EHTagger_Tampermonkey.js(0.0.alpha.6)*

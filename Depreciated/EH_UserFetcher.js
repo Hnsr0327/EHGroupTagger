@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Exhentai Data Fetcher
+// @name         Exhentai Data Fetcher (Classic)
 // @namespace    https://github.com/Hnsr0327/EHGroupTagger/
 // @version      0.2.stable
 // @description  Fetch and send necessary data to the local server

