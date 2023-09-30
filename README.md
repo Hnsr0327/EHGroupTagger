@@ -1,27 +1,19 @@
 # EHGroupTagger
 
-（更新于2023年9月13日 UTC 16:42）
+(Last updated on September 30, 2023, at 12:17 UTC)
 
-EHGroupTagger 是一个解决方案，旨在实现 E-Hentai 网站的自动化 tagging 工作。
-通过使用该工具，用户可以汇集同一份画廊（主要目标是同人志）的不同 Tag ，并自动 Upvote 这些 Tag ，从而提高标签的准确性和完整性，并减少人工干预。
+EHGroupTagger is an abandoned solution, initially proposed by @Hnsr0327 / @HanakuroHakoniwa, but later deemed meaningless due to the existing name/tagging system being too chaotic, low-quality, and illogical. @Hnsr0327 decided to close this project (and release all the code) after re-evaluating its feasibility (and facing harsh criticism from @nasu).
 
-## 它目前所实现的业务逻辑：
+## Self-criticism announcement (why it failed)
 
-### 获取 Tag
-从 E-Hentai 网站获取画廊页面上的高权重 Tag ，将获取到的 Tag 数据发送到本地服务器，并保存到数据库中，等待下一步处理；
-1. 对于新增画廊，首先自动提取相关信息，如作者、语言、分类等，生成初始 Tag ；
-2. 对于现有同网站的“同一本同人志”（“同一本”的定义是什么？这个问题尚未定义。），将从 E-Hentai 网站上获取的同人志页面的高权重 Tag 添加进数据库系统。
-* 用户也可以手动获取更多的 Tag ，它们将被添加到剪贴板中。
+This solution once attempted to propose using {Artist Name, Doujinshi Name, Page Count} to determine each unique piece of content (Unique Content ID), and each unique content should share the same fetish tags. Then each doujinshi gallery would have unique content and additional special indicators. 
 
-## 以下是可能需要补充的业务逻辑：
-3. 将在补充业务逻辑(3)中的 Tag 与已有同人志数据库中的 Tag 进行对比，找出缺失或需要更新的部分；
-4. 在补充业务逻辑(4)中，如果存在需要更新的标签，自动生成新的，并替换旧的 Tag ；
-5. 将前述业务逻辑中更新后的 Tag ，上传到 E-Hentai 网站，具体的做法是对这些 Tag 进行 Upvote；
+But why couldn’t it succeed?
 
-## 安装与使用
-1. 安装 Node.js 并运行 server.js 以启动本地服务器。
-2. 将 EHentai Tagger 和 Exhentai Data Fetcher 用户脚本安装到支持用户脚本的浏览器扩展中（如Tampermonkey）。
-3. 浏览 E-Hentai 网站，用户脚本将自动获取、处理标签数据，并与本地服务器进行交互。
+1. Imagine a scenario where you are an EH user, a newcomer; without proper guidance, you might not fill in the correct artist name/doujinshi name, page count, or even align the brackets, making these “misnamed” galleries inherently unsuitable for this so-called new system;
+2. Regarding “unique content should share the same fetish tags,” I have encountered at least 10 similar scenarios: a certain tag, in different translation versions of the same unique content, at least 70% received 100+ weight, and there were still one or two versions that got vetoed. Even the users themselves would argue, and the absurdity is that the veto only involves a specific translation version;
+3. As an extension of (2), imagine a scenario where you have a Western cultural background (in this case, you are a cartoon audience), and you see the tag “f:futanari”. You might say: shouldn’t this be “f:shemale”? In fact, EH even came up with a [Know the Difference](https://ehwiki.org/wiki/Know_The_Difference) webpage to explain the differences between these fetishes.
 
-## 贡献与反馈
-欢迎提交 issue 以帮助我们不断完善 EHGroupTagger。您的反馈对我们非常重要。
+## Contributions and Feedback
+
+There’s no need for any additional contributions or feedback here. Once I’m done with any other more important matters in my lifetime, perhaps I’ll come back and delve deeper into this.
